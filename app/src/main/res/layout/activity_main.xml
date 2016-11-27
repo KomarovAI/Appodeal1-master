@@ -10,7 +10,7 @@
     tools:context="columbainc.appodeal1.MainActivity">
 
     <Button
-        android:text="Нажми меня!"
+        android:text="Отключение рекламмы."
         android:onClick="onMyButtonClick"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -39,11 +39,13 @@
         android:visibility="invisible"
         android:clickable="false" />
 
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/chronometer4"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp" />
+    <com.appodeal.ads.native_ad.views.NativeAdViewAppWall
+        android:id="@+id/native_ad_view_app_wall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp">
+    </com.appodeal.ads.native_ad.views.NativeAdViewAppWall>
+
+
 
 </RelativeLayout>

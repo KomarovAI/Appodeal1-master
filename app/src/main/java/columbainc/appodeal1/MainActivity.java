@@ -3,8 +3,9 @@ package columbainc.appodeal1;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.Toast;
 
@@ -13,13 +14,14 @@ import com.appodeal.ads.BannerCallbacks;
 import com.appodeal.ads.InterstitialCallbacks;
 import com.appodeal.ads.SkippableVideoCallbacks;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
     boolean pressbtn = false;
-    boolean pause = false;
     Chronometer chronometr;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
         Appodeal.disableLocationPermissionCheck();
         Appodeal.setTesting(false);
@@ -33,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
             Appodeal.show(main, Appodeal.BANNER_TOP);
         }
 
+
+
         final Thread baneerThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -45,42 +49,42 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-       Thread chron = new Thread(new Runnable() {
+       final Thread chron = new Thread(new Runnable() {
             @Override
             public void run() {
-                chronometr.start();
                 while (!pressbtn) {
                     Appodeal.initialize(main, appKey, Appodeal.REWARDED_VIDEO);
-                    Appodeal.initialize(main,appKey,Appodeal.INTERSTITIAL);
-                    pause = false;
-
+                    Appodeal.initialize(main, appKey, Appodeal.INTERSTITIAL);
                     try {
-                        Thread.sleep(30000);
-                        if (pressbtn) {
-                            chronometr.stop();
-                            break;
-                        }
+                        Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
-                      }
-                        chronometr.stop();
+                    }
+                    long timeElapsed = SystemClock.elapsedRealtime() - chronometr.getBase();
+                            int seconds = (int) (timeElapsed) / 1000;
+                    System.out.println(seconds);
+                    if (pressbtn) break;
+                    if (seconds == 30) {
                         if (pressbtn) break;
-                        if (Appodeal.isLoaded(Appodeal.REWARDED_VIDEO)){
+                        if (Appodeal.isLoaded(Appodeal.REWARDED_VIDEO)) {
 
                             Appodeal.show(main, Appodeal.REWARDED_VIDEO);
-
+                            try {
+                                Thread.sleep(10000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         } else {
                             Appodeal.show(main, Appodeal.INTERSTITIAL);
-                        }
-                        while (!pause) {
                             try {
-                                Thread.sleep(500);
+                                Thread.sleep(10000);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
                         }
                     }
                 }
+            }
         });
         chron.setPriority(2);
         chron.start();
@@ -140,9 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onInterstitialClosed() {
-                pause=true;
                 chronometr.setBase(SystemClock.elapsedRealtime());
-                chronometr.start();
             }
 
             void showToast(final String text) {
@@ -176,9 +178,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSkippableVideoClosed(boolean finished) {
-                pause=true;
                 chronometr.setBase(SystemClock.elapsedRealtime());
-                chronometr.start();
             }
 
             void showToast(final String text) {
@@ -201,13 +201,25 @@ public class MainActivity extends AppCompatActivity {
         chronometr.stop();
         chronometr.setBase(SystemClock.elapsedRealtime());
         chronometr.setVisibility(View.INVISIBLE);
+
+
     }
 
     protected void onResume() {
         super.onResume();
-
+        chronometr.start();
         Appodeal.onResume(this, Appodeal.BANNER);
-
     }
+
+    protected void onStop() {
+        super.onStop();
+    }
+
+    protected void onPause() {
+        super.onPause();
+        chronometr.stop();
+    }
+
+
     }
 
