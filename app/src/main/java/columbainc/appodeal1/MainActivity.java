@@ -59,6 +59,7 @@ public class MainActivity extends Activity {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
+                        //
                     }
                     long timeElapsed = SystemClock.elapsedRealtime() - chronometr.getBase();
                             int seconds = (int) (timeElapsed) / 1000;
